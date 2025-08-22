@@ -1,0 +1,86 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f6fa;
+    margin: 0;
+    padding: 0;
+    color: #222;
+}
+
+nav {
+    background: #353b48;
+    padding: 16px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+nav ul li a:hover {
+    background: #718093;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 3rem;
+    color: #273c75;
+    letter-spacing: 2px;
+}
+
+p {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+}
+
+form, label, input {
+    display: block;
+    margin: 0 auto;
+    max-width: 350px;
+}
+
+label {
+    margin-top: 16px;
+    margin-bottom: 4px;
+    font-weight: 600;
+    color: #353b48;
+}
+
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #dcdde1;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 1rem;
+}
+
+input[type="text"]:focus, input[type="password"]:focus {
+    border-color: #273c75;
+    outline: none;
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 2rem;
+    }
+    nav ul {
+        gap: 16px;
+    }
+}
