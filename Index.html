@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boutique Rotative - Démo</title>
+
+    <style>
+        /* --- Réinitialisation et Base --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #333; /* Fond sombre pour contraster avec la page claire */
+            color: #333;
+            overflow-x: hidden; /* Empêche le défilement horizontal lors de la rotation */
+            /* Important pour que le menu fixe fonctionne bien avec la rotation */
+            position: relative; 
+        }
+
+        /* --- Conteneur Principal (qui va pivoter) --- */
+        .container {
+            background-color: #f8f8f8;
+            min-height: 100vh; /* Prend au moins toute la hauteur */
+            padding-bottom: 80px; /* Espace pour le footer */
+            position: relative; /* Contexte pour le footer absolu si besoin */
+            z-index: 1; /* Pour être au-dessus du nav par défaut */
+
+            /* La magie de la transition pour la rotation */
+            transition: transform 0.5s ease-in-out;
+            transform-origin: top left; /* Point de pivot pour la rotation */
+        }
+
+        /* --- État Actif (quand le menu est visible) --- */
+        body.show-nav .container {
+            /* Pivote et se déplace pour révéler le menu */
+            transform: rotate(-15deg) translateX(200px);
+            box-shadow: -10px 10px 30px rgba(0,0,0,0.3);
+        }
+        /* Ajoute un overlay semi-transparent sur le contenu quand le menu est ouvert */
+         body.show-nav .container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.1); /* Léger assombrissement */
+            z-index: 5; /* Au-dessus du contenu mais sous le bouton */
+         }
+
+
+        /* --- Bouton Menu Burger --- */
+        .menu-toggle {
+            position: fixed; /* Reste fixe à l'écran */
+            top: 20px;
+            left: 20px;
+            background-color: #e74c3c; /* Rouge */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 100; /* Toujours au-dessus */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+        
+        /* Rotation de l'icône burger en croix */
+        body.show-nav .menu-toggle {
+            transform: rotate(90deg); /* Tourne le bouton quand le menu est ouvert */
+             background-color: #c0392b; /* Rouge plus foncé */
+        }
+        /* Utilisation de caractères pour les icônes (simple) */
+        .menu-toggle .icon-open { display: block; }
+        .menu-toggle .icon-close { display: none; }
+        body.show-nav .menu-toggle .icon-open { display: none; }
+        body.show-nav .menu-toggle .icon-close { display: block; }
+
+
+        /* --- Navigation Latérale (cachée initialement) --- */
+        nav.side-nav {
+            position: fixed; /* Fixe sous le conteneur */
+            top: 0;
+            left: 0; /* Reste à gauche */
+            width: 200px; /* Largeur du menu */
+            height: 100vh; /* Toute la hauteur */
+            background-color: #2c3e50; /* Bleu nuit */
+            color: #ecf0f1; /* Gris clair */
+            padding-top: 80px; /* Espace pour le bouton menu */
+            z-index: 0; /* Derrière le conteneur par défaut */
+        }
+
+        nav.side-nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav.side-nav ul li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #34495e; /* Séparateur léger */
+            transition: background-color 0.3s ease;
+        }
+         nav.side-nav ul li:first-child {
+             border-top: 1px solid #34495e; /* Séparateur léger */
+         }
+
+
+        nav.side-nav ul li:hover {
+            background-color: #34495e; /* Bleu gris */
+        }
+
+        nav.side-nav ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-size: 1.1em;
+            display: block; /* Prend toute la largeur du li */
+        }
+
+        /* --- En-tête du Site --- */
+        header {
+            background-color: #3498db; /* Bleu clair */
+            color: white;
+            padding: 1.5rem 2rem;
+            text-align: center;
+        }
+        header h1 { margin: 0; font-size: 2em;}
+
+        /* --- Contenu Principal --- */
+        main {
+            padding: 2rem;
+        }
+
+        h2.section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+            display: inline-block; /* Pour que la bordure s'adapte */
+        }
+        .center-title { text-align: center;} /* Helper class */
+
+        /* --- Grille de Produits --- */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive */
+            gap: 1.5rem; /* Espace entre les produits */
+        }
+
+        /* --- Carte Produit Individuelle --- */
+        .product-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* Pour que l'image ne dépasse pas */
+            display: flex;
+            flex-direction: column; /* Empile image, contenu, bouton */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-card img.product-image {
+            width: 100%;
+            height: 200px; /* Hauteur fixe pour l'image */
+            object-fit: cover; /* Redimensionne sans déformer */
+            display: block;
+             background-color: #eee; /* Couleur de fond si l'image manque */
+        }
+        
+        /* Placeholder simple si pas d'image */
+        .product-card .img-placeholder {
+             width: 100%;
+             height: 200px;
+             background-color: #ddd;
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             color: #aaa;
+             font-size: 0.9em;
+        }
+
+
+        .product-card .product-info {
+            padding: 1rem;
+            flex-grow: 1; /* Prend l'espace restant */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .product-card .product-price {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #e74c3c; /* Rouge */
+            margin-bottom: 1rem;
+        }
+        
+        .product-card .product-desc {
+            font-size: 0.9em;
+            color: #555;
+            flex-grow: 1; /* Pousse le bouton vers le bas */
+            margin-bottom: 1rem;
+        }
+
+
+        .product-card .btn-add-cart {
+            background-color: #2ecc71; /* Vert */
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            margin-top: auto; /* Se place en bas */
+        }
+
+        .product-card .btn-add-cart:hover {
+            background-color: #27ae60; /* Vert plus foncé */
+        }
+         .product-card .btn-add-cart:active {
+             transform: scale(0.98);
+         }
+
+        /* --- Pied de Page --- */
+        footer {
+            background: #34495e; /* Bleu gris */
+            color: #ecf0f1;
+            text-align: center;
+            padding: 1.5rem 0;
+            position: absolute; /* Fixe en bas du container si peu de contenu */
+            bottom: 0;
+            left:0;
+            width: 100%;
+        }
+
+        /* --- Message de notification (pour JS) --- */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none; /* N'intercepte pas les clics */
+        }
+        .notification.show {
+            opacity: 1;
+        }
+
+
+    </style>
+    </head>
+<body>
+
+    <button class="menu-toggle" id="menu-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="side-navigation">
+        <span class="icon-open">☰</span>
+        <span class="icon-close">✕</span>
+    </button>
+
+    <nav class="side-nav" id="side-navigation" aria-hidden="true">
+        <ul>
+            <li><a href="#">Accueil</a></li>
+            <li><a href="#">Nouveautés</a></li>
+            <li><a href="#">Meilleures Ventes</a></li>
+            <li><a href="#">Catégories</a>
+                 </li>
+            <li><a href="#">Promotions</a></li>
+            <li><a href="#">Mon Compte</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="container" id="main-container">
+
+        <header>
+            <h1>Ma Boutique en Ligne</h1>
+        </header>
+
+        <main>
+            <div class="center-title">
+                 <h2 class="section-title">Nos Produits Populaires</h2>
+             </div>
+
+            <section class="product-grid">
+
+                <div class="product-card">
+                    <div class="img-placeholder">Image Produit 1 (300x200)</div>
+                    <div class="product-info">
+                        <h3>Gadget Incroyable</h3>
+                        <p class="product-price">49.99 €</p>
+                         <p class="product-desc">Un gadget essentiel qui changera votre quotidien.</p>
+                        <button class="btn-add-cart" data-product-name="Gadget Incroyable">Ajouter au Panier</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                     <div class="img-placeholder" style="background-color: #f1c40f;">Image Produit 2 (300x200)</div>
+                    <div class="product-info">
+                        <h3>Super T-Shirt</h3>
+                        <p class="product-price">19.95 €</p>
+                         <p class="product-desc">Confortable et stylé, parfait pour toutes les occasions.</p>
+                        <button class="btn-add-cart" data-product-name="Super T-Shirt">Ajouter au Panier</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                     <div class="img-placeholder" style="background-color: #1abc9c;">Image Produit 3 (300x200)</div>
+                    <div class="product-info">
+                        <h3>Accessoire Utile</h3>
+                        <p class="product-price">9.50 €</p>
+                         <p class="product-desc">Le petit plus indispensable pour vous simplifier la vie.</p>
+                        <button class="btn-add-cart" data-product-name="Accessoire Utile">Ajouter au Panier</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                     <div class="img-placeholder" style="background-color: #e74c3c;">Image Produit 4 (300x200)</div>
+                    <div class="product-info">
+                        <h3>Objet Décoratif</h3>
+                        <p class="product-price">75.00 €</p>
+                        <p class="product-desc">Apportez une touche d'élégance à votre intérieur.</p>
+                        <button class="btn-add-cart" data-product-name="Objet Décoratif">Ajouter au Panier</button>
+                    </div>
+                </div>
+
+                 </section> </main>
+
+        <footer>
+            <p>&copy; 2025 Ma Boutique en Ligne Rotative - Tous droits réservés</p>
+            <p>Ceci est une démo - Pas une vraie boutique</p>
+        </footer>
+
+    </div> <div id="notification-area" class="notification"></div>
+
+
+    <script>
+        // Attend que le DOM soit prêt
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const menuToggleButton = document.getElementById('menu-toggle');
+            const mainContainer = document.getElementById('main-container');
+            const sideNav = document.getElementById('side-navigation');
+            const body = document.body; // Cible le body pour ajouter/retirer la classe
+
+             // --- Gestion de l'ouverture/fermeture du menu ---
+            if (menuToggleButton && body && sideNav) {
+                menuToggleButton.addEventListener('click', () => {
+                    body.classList.toggle('show-nav'); // Ajoute/retire la classe sur le body
+
+                    // Mise à jour des attributs ARIA pour l'accessibilité
+                    const isExpanded = body.classList.contains('show-nav');
+                     menuToggleButton.setAttribute('aria-expanded', isExpanded);
+                     sideNav.setAttribute('aria-hidden', !isExpanded);
+                     
+                     if(isExpanded) {
+                         menuToggleButton.setAttribute('aria-label', 'Fermer le menu');
+                     } else {
+                         menuToggleButton.setAttribute('aria-label', 'Ouvrir le menu');
+                     }
+                });
+                
+                 // Optionnel : Fermer le menu si on clique sur le contenu principal
+                 mainContainer.addEventListener('click', () => {
+                      if (body.classList.contains('show-nav')) {
+                          body.classList.remove('show-nav');
+                          menuToggleButton.setAttribute('aria-expanded', 'false');
+                          sideNav.setAttribute('aria-hidden', 'true');
+                          menuToggleButton.setAttribute('aria-label', 'Ouvrir le menu');
+                      }
+                 }, true); // Utiliser la capture pour intercepter le clic avant les boutons internes
+                 
+                 // Empêche la fermeture si on clique dans le menu lui-même
+                 sideNav.addEventListener('click', (e) => {
+                     e.stopPropagation(); // Arrête la propagation du clic vers le container
+                 });
+
+
+            } else {
+                console.error("Éléments nécessaires pour le menu (bouton, conteneur, nav) non trouvés.");
+            }
+            
+            // --- Simulation "Ajouter au panier" ---
+            const addToCartButtons = document.querySelectorAll('.btn-add-cart');
+            const notificationArea = document.getElementById('notification-area');
+            let notificationTimeout;
+
+            function showNotification(message) {
+                if (!notificationArea) return;
+
+                // Annule le timer précédent s'il existe
+                clearTimeout(notificationTimeout);
+
+                notificationArea.textContent = message;
+                notificationArea.classList.add('show');
+
+                // Cache la notification après 3 secondes
+                notificationTimeout = setTimeout(() => {
+                    notificationArea.classList.remove('show');
+                }, 3000);
+            }
+
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    // Empêche le clic de se propager au container et de fermer le menu
+                    event.stopPropagation(); 
+                    
+                    const productName = button.dataset.productName || 'Produit'; // Récupère le nom depuis data-attribute
+                    console.log(`${productName} ajouté au panier (simulation).`);
+                    showNotification(`${productName} ajouté au panier ! (Démo)`);
+                    
+                    // Ici, dans un vrai site, on ajouterait le produit au panier (localStorage, API, etc.)
+                });
+            });
+
+        }); // Fin de l'écouteur DOMContentLoaded
+    </script>
+    </body>
+</html>
